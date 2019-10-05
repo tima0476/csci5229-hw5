@@ -1,7 +1,7 @@
 /*
  *  Lighting
  *
- *  Expands on the Rockets + Planet scene of HW3 & HW4 by adding basic lighting
+ *  Expands on the Rockets + Planet scene of HW3 by adding basic lighting
  *  This code is based heavily on example 13 (ex13.zip) provided in class
  *
  *  Key bindings:
@@ -27,12 +27,13 @@
  *  ESC        Exit
  */
 #include "CSCIx229.h"
+#include "color.h"
 
 int axes=1;       //  Display axes
 int mode=1;       //  Projection mode
 int move=1;       //  Move light
-int th=0;         //  Azimuth of view angle
-int ph=0;         //  Elevation of view angle
+int th=25;         //  Azimuth of view angle
+int ph=25;         //  Elevation of view angle
 int fov=55;       //  Field of view (for perspective)
 int light=1;      //  Lighting
 double asp=1;     //  Aspect ratio
@@ -431,18 +432,22 @@ int main(int argc,char* argv[])
 {
    //  Initialize GLUT
    glutInit(&argc,argv);
+   
    //  Request double buffered, true color window with Z buffering at 600x600
    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
    glutInitWindowSize(1024,1024);
    glutCreateWindow("Timothy Mason");
+   
    //  Set callbacks
    glutDisplayFunc(display);
    glutReshapeFunc(reshape);
    glutSpecialFunc(special);
    glutKeyboardFunc(key);
    glutIdleFunc(idle);
+   
    //  Pass control to GLUT so it can interact with the user
    ErrCheck("init");
    glutMainLoop();
+   
    return 0;
 }

@@ -3,7 +3,7 @@ HW5: Lighting
 Timothy Mason
 CSCI 5229-001B Computer Graphics - University of Colorado Boulder
 
-Expands on the Rockets + Planet scene of HW3 & HW4 by adding basic lighting
+Expands on the Rockets + Planet scene of HW3 by adding basic lighting
 
 Key bindings
   l          Toggles lighting
