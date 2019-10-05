@@ -24,10 +24,13 @@
  *  arrows     Change view angle
  *  PgDn/PgUp  Zoom in and out
  *  0          Reset view angle
- *  ESC        Exit
+ *  ESC/q/Q    Exit
  */
 #include "CSCIx229.h"
 #include "color.h"
+
+#define MIN(a,b)  ((a) < (b) ? (a) : (b))
+#define MAX(a,b)  ((a) > (b) ? (a) : (b))
 
 int axes=1;       //  Display axes
 int mode=1;       //  Projection mode
@@ -41,7 +44,7 @@ double dim=3.0;   //  Size of world
 // Light values
 int one       =   1;  // Unit value
 int distance  =   5;  // Light distance
-int inc       =  10;  // Ball increment
+int inc       =   5;  // Ball increment
 int smooth    =   1;  // Smooth/Flat shading
 int local     =   0;  // Local Viewer Model
 int emission  =   0;  // Emission intensity (%)
@@ -344,70 +347,121 @@ void special(int key,int x,int y)
  */
 void key(unsigned char ch,int x,int y)
 {
-   //  Exit on ESC
-   if (ch == 27)
-      exit(0);
-   //  Reset view angle
-   else if (ch == '0')
-      th = ph = 0;
-   //  Toggle axes
-   else if (ch == 'x' || ch == 'X')
-      axes = 1-axes;
-   //  Toggle lighting
-   else if (ch == 'l' || ch == 'L')
-      light = 1-light;
-   //  Switch projection mode
-   else if (ch == 'p' || ch == 'P')
-      mode = 1-mode;
-   //  Toggle light movement
-   else if (ch == 'm' || ch == 'M')
-      move = 1-move;
-   //  Move light
-   else if (ch == '<')
-      zh += 1;
-   else if (ch == '>')
-      zh -= 1;
-   //  Change field of view angle
-   else if (ch == '-' && ch>1)
-      fov--;
-   else if (ch == '+' && ch<179)
-      fov++;
-   //  Light elevation
-   else if (ch=='[')
-      ylight -= 0.1;
-   else if (ch==']')
-      ylight += 0.1;
-   //  Ambient level
-   else if (ch=='a' && ambient>0)
-      ambient -= 5;
-   else if (ch=='A' && ambient<100)
-      ambient += 5;
-   //  Diffuse level
-   else if (ch=='d' && diffuse>0)
-      diffuse -= 5;
-   else if (ch=='D' && diffuse<100)
-      diffuse += 5;
-   //  Specular level
-   else if (ch=='s' && specular>0)
-      specular -= 5;
-   else if (ch=='S' && specular<100)
-      specular += 5;
-   //  Emission level
-   else if (ch=='e' && emission>0)
-      emission -= 5;
-   else if (ch=='E' && emission<100)
-      emission += 5;
-   //  Shininess level
-   else if (ch=='n' && shininess>-1)
-      shininess -= 1;
-   else if (ch=='N' && shininess<7)
-      shininess += 1;
+   switch(ch) {   
+      case 27:       // Exit on ESC or q
+      case 'q':
+      case 'Q':
+         exit(0);
+         break;
+
+      case '0':      //  Reset view angle
+         th = ph = 0;
+         break;
+
+      case 'x':      // Toggle axes display
+      case 'X':
+         axes = 1-axes;
+         break;
+
+      case 'l':      //  Toggle lighting
+      case 'L':
+         light = 1-light;
+         break;
+
+      case 'p':      //  Switch projection mode
+      case 'P':
+         mode = 1-mode;
+         break;
+
+      case 'm':      //  Toggle light movement
+      case 'M':
+         move = 1-move;
+         break;
+
+      case '<':      // Move light clockwise about y axis
+         zh += 1;
+         break;
+
+      case '>':      // Move light counter-clockwise about y axis
+         zh -= 1;
+         break;
+
+      case '-':       // Decrease field of view angle
+         fov--;
+         break;
+
+      case '+':      // Increase field of view angle
+         fov++;
+         break;
+
+      case '[':      // Decrease light elevation (down y axis)
+         ylight -= 0.1;
+         break;
+
+      case ']':      // Increase light elevation (up y axis)
+         ylight += 0.1;
+         break;
+
+      case 'a':      // Decrease ambient level, but not less than 0
+         ambient -= 5;
+         ambient = MAX(ambient,0);
+         break;
+
+      case 'A':      // Increase ambient level, but not more than 100
+         ambient += 5;
+         ambient = MIN(ambient,100);
+         break;
+
+      case 'd':      // Decrease diffuse level, but not less than 0
+         diffuse -= 5;
+         diffuse = MAX(diffuse,0);
+         break;
+
+      case 'D':      // Increase diffuse level, but not more than 100
+         diffuse += 5;
+         diffuse = MIN(diffuse,100);
+         break;
+
+      case 's':      // Decrease specular level, but not less than 0
+         specular -= 5;
+         specular = MAX(specular,0);
+         break;
+
+      case 'S':      // Increase specular level, but not more than 100
+         specular += 5;
+         specular = MIN(specular,100);
+         break;
+
+      case 'e':      // Decrease emission level, but not less than 0
+         emission -= 5;
+         emission = MAX(emission,0);
+         break;
+
+      case 'E':      // Increase emission level, but not more than 100
+         emission += 5;
+         emission = MIN(emission,100);
+         break;
+
+      case 'n':      // Decrease shininess level, but not less than 0
+         shininess -= 5;
+         shininess = MAX(shininess,0);
+         break;
+
+      case 'N':      // Increase shininess level, but not more than 7
+         shininess += 5;
+         shininess = MIN(shininess,7);
+         break;
+   }
+
    //  Translate shininess power to value (-1 => 0)
    shiny = shininess<0 ? 0 : pow(2.0,shininess);
+   
    //  Reproject
    Project(mode?fov:0,asp,dim);
+   
    //  Animate if requested
    glutIdleFunc(move?idle:NULL);
+   
    //  Tell GLUT it is necessary to redisplay the scene
    glutPostRedisplay();
 }
