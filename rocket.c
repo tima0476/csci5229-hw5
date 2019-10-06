@@ -145,6 +145,8 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
    double th;
    int i;
    double r, g, b;      // For receiving color values from color conversion
+   double nlr, nlz;     // Temporary storage for computing surface normals of the pair of vertices on the left (lower index)
+   double nrr, nrz;     // Temporary storage for computing surface normals of the pair of vertices on the right (higher index)
 
 
    // Save transformation
@@ -165,12 +167,39 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
       glBegin(GL_QUADS);
       for (th=0.0; th<=360.0; th+=d)
       {
-         // Draw a piece in counter-clockwise order
-         cylNormal(profile[i-1].y - profile[i].y, th+d/2.0, profile[i].x - profile[i-1].x);  // this is a flat quad, so all 4 vertices share same surface normal
-         cylVertex(profile[i-1].x, th, profile[i-1].y);
-         cylVertex(profile[i].x, th, profile[i].y);
-         cylVertex(profile[i].x, th+d, profile[i].y);
-         cylVertex(profile[i-1].x, th+d, profile[i-1].y);
+         //
+         // Calculate the radius and z components of the surface normals
+         //
+         nlr = profile[i-1].y - profile[i].y;      // The way the outer loop is constructed, there is always a contribution...
+         nlz = profile[i].x - profile[i-1].x;      // ...from the segment to the right of the left point
+
+         // Average in the surface normal from the point to the left (if there is one).  Note:  since we have the OpenGL option
+         // enabled to normalize the lengths of surface normals (GL_NORMALIZE), there is no need to waste compute cycles computing 
+         // an average. Just do a summation and don't bother with the final division.  It will still point in the correct direction.
+         if (i>1)
+         {
+            nlr += profile[i-2].y - profile[i-1].y;
+            nlz += profile[i-1].x - profile[i-2].x;
+         }
+
+         nrr = profile[i-1].y - profile[i].y;      // The way the outer loop is constructed, there is always a contribution...
+         nrz = profile[i].x - profile[i-1].x;      // ...from the segment to the left of the right point
+
+         // if there is a point to the right of this one, then add in it's contribution to the surface normal
+         if (i+1<size)
+         {
+            nlr += profile[i].y - profile[i+1].y;
+            nlz += profile[i+1].x - profile[i].x;
+         }
+
+         cylNormal(profile[i-1].y - profile[i].y, th+d/2.0, profile[i].x - profile[i-1].x);
+         //
+         // Draw the quad in counter-clockwise order
+         //
+         cylNormal(nlr, th, nlz);      cylVertex(profile[i-1].x, th,   profile[i-1].y);
+         cylNormal(nrr, th, nrz);      cylVertex(profile[i  ].x, th,   profile[i  ].y);
+         cylNormal(nrr, th+d, nrz);    cylVertex(profile[i  ].x, th+d, profile[i  ].y);
+         cylNormal(nlr, th+d, nlz);    cylVertex(profile[i-1].x, th+d, profile[i-1].y);
       }
       glEnd();
    }
