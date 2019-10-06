@@ -3,8 +3,8 @@
 
 // Data structure containing a single point in 2d space
 typedef struct duopoint {
-	double x;
-	double y;
+	double r;
+	double z;
 } duopoint;
 typedef struct duopoint *dpp;
 

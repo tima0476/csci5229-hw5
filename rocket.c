@@ -168,64 +168,52 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
       for (th=0.0; th<=360.0; th+=d)
       {
          //
-         // Calculate the radius and z components of the surface normals
+         // Calculate the radius and z components of the surface normals.  For the first and last segments in the profile,
+         // compute normals from adjacent vertices.  For all other (middle) segments, compute from vertices that are two
+         // clicks away, thereby getting an average
          //
-         nlr = profile[i-1].y - profile[i].y;      // The way the outer loop is constructed, there is always a contribution...
-         nlz = profile[i].x - profile[i-1].x;      // ...from the segment to the right of the left point
+         nlr = (i>1 ? profile[i-2].z : profile[i-1].z) - profile[i].z;
+         nlz = profile[i].r - (i>1 ? profile[i-2].r : profile[i-1].r);
 
-         // Average in the surface normal from the point to the left (if there is one).  Note:  since we have the OpenGL option
-         // enabled to normalize the lengths of surface normals (GL_NORMALIZE), there is no need to waste compute cycles computing 
-         // an average. Just do a summation and don't bother with the final division.  It will still point in the correct direction.
-         if (i>1)
-         {
-            nlr += profile[i-2].y - profile[i-1].y;
-            nlz += profile[i-1].x - profile[i-2].x;
-         }
-
-         nrr = profile[i-1].y - profile[i].y;      // The way the outer loop is constructed, there is always a contribution...
-         nrz = profile[i].x - profile[i-1].x;      // ...from the segment to the left of the right point
+         nrr = profile[i-1].z - (i+1<size ? profile[i+1].z : profile[i].z);      // The way the outer loop is constructed, there is always a contribution...
+         nrz = (i+1<size ? profile[i+1].r : profile[i].r) - profile[i-1].r;      // ...from the segment to the left of the right point
 
          // if there is a point to the right of this one, then add in it's contribution to the surface normal
-         if (i+1<size)
-         {
-            nlr += profile[i].y - profile[i+1].y;
-            nlz += profile[i+1].x - profile[i].x;
-         }
 
-         cylNormal(profile[i-1].y - profile[i].y, th+d/2.0, profile[i].x - profile[i-1].x);
+         cylNormal(profile[i-1].z - profile[i].z, th+d/2.0, profile[i].r - profile[i-1].r);
          //
          // Draw the quad in counter-clockwise order
          //
-         cylNormal(nlr, th, nlz);      cylVertex(profile[i-1].x, th,   profile[i-1].y);
-         cylNormal(nrr, th, nrz);      cylVertex(profile[i  ].x, th,   profile[i  ].y);
-         cylNormal(nrr, th+d, nrz);    cylVertex(profile[i  ].x, th+d, profile[i  ].y);
-         cylNormal(nlr, th+d, nlz);    cylVertex(profile[i-1].x, th+d, profile[i-1].y);
+         cylNormal(nlr, th, nlz);      cylVertex(profile[i-1].r, th,   profile[i-1].z);
+         cylNormal(nrr, th, nrz);      cylVertex(profile[i  ].r, th,   profile[i  ].z);
+         cylNormal(nrr, th+d, nrz);    cylVertex(profile[i  ].r, th+d, profile[i  ].z);
+         cylNormal(nlr, th+d, nlz);    cylVertex(profile[i-1].r, th+d, profile[i-1].z);
       }
       glEnd();
    }
 
    // Top cap; if necessary
-   if (profile[0].x != 0.0)
+   if (profile[0].r != 0.0)
    {
       glBegin(GL_TRIANGLE_FAN);
       glColor3f(0,0,1);    // Top cap is always blue
       glNormal3d(0,0,1);   // Surface normal is straight up the z-axis
-      glVertex3d(0, profile[0].y, 0);
+      glVertex3d(0, profile[0].z, 0);
       for (th = 0; th <= 360; th += d)
-         cylVertex(profile[0].x, th, profile[0].y);
+         cylVertex(profile[0].r, th, profile[0].z);
       glEnd();
    }
 
    // Bottom cap; if necessary
-   if (profile[size-1].x != 0.0)
+   if (profile[size-1].r != 0.0)
    {
       // Draw a triangle fan from the origin to the final circle.
       glBegin(GL_TRIANGLE_FAN);
       glColor3f(1, 1, 0);    // base cap is always orange
       glNormal3d(0,0,-1);   // Surface normal is straight down the z-axis
-      glVertex3d(0, profile[size-1].y, 0);
+      glVertex3d(0, profile[size-1].z, 0);
       for (th = 0; th <= 360; th += d)
-         cylVertex(profile[size-1].x, th, profile[size-1].y);
+         cylVertex(profile[size-1].r, th, profile[size-1].z);
       glEnd();
    }
 
@@ -266,8 +254,8 @@ void draw_fins(double bx, double by, double bz, double rx, double ry, double rz,
       // the last point, the 2nd point is adjacent to the 2nd-to-last point, and so on.
       for (i=0; i<(ROCKET_FIN_POINT_COUNT/2); i++)
       {
-         cylVertex(rocket_fin[i].x, th, rocket_fin[i].y);
-         cylVertex(rocket_fin[ROCKET_FIN_POINT_COUNT-i-1].x, th, rocket_fin[ROCKET_FIN_POINT_COUNT-i-1].y);
+         cylVertex(rocket_fin[i].r, th, rocket_fin[i].z);
+         cylVertex(rocket_fin[ROCKET_FIN_POINT_COUNT-i-1].r, th, rocket_fin[ROCKET_FIN_POINT_COUNT-i-1].z);
       }
 
       glEnd();
