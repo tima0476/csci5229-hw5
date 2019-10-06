@@ -131,17 +131,15 @@ void display()
       glDisable(GL_LIGHTING);
 
    //  Draw scene
-   // glColor3f(0,.25,1);
-   // ball(0,0,0, 0.5, emission, shininess, inc);
-
-   rocket(   0,   0,   0,  1, 0, 0,  -90,  1.0/20.0, 120.0/360.0, 3);    // Green, 3 fins
+   glColor3f(0,.25,1);
+   ball(0,0,0, 0.3, emission, shininess, inc);
 
    // Draw some rockets.   (ref: http://colorizer.org/ for a good interactive color chooser)
-   // rocket(   1,   1,   0,  1, 1, 0,  30,  1.0/70.0, 120.0/360.0, 3);    // Green, 3 fins
-   // rocket(  -1,   0,   0,  1, 0, 1,  85, -1.0/60.0, 180.0/360.0, 4);    // Cyan, 4 fins
-   // rocket(   0, 0.5, 1.5,  0, 1, 1, 161,  1.0/80.0, 300.0/360.0, 5);    // Magenta, 5 fins
-   // rocket(   0,-0.5,  -1,  0, 1, 0,  35, -1.0/90.0, 260.0/360.0, 6);    // Purple, 6 fins
-   // rocket( 1.1, 1.1, 1.1,  0, 0, 0,   0,  1.0/80.0, 240.0/360.0, 7);    // Blue, 7 fins
+   rocket(   1,   1,   0,  1, 1, 0,  30,  1.0/70.0, 120.0/360.0, 3, inc);    // Green, 3 fins
+   rocket(  -1,   0,   0,  1, 0, 1,  85, -1.0/60.0, 180.0/360.0, 4, inc);    // Cyan, 4 fins
+   rocket(   0, 0.5, 1.5,  0, 1, 1, 161,  1.0/80.0, 300.0/360.0, 5, inc);    // Magenta, 5 fins
+   rocket(   0,-0.5,  -1,  0, 1, 0,  35, -1.0/90.0, 260.0/360.0, 6, inc);    // Purple, 6 fins
+   rocket( 1.1, 1.1, 1.1,  0, 0, 0,   0,  1.0/80.0, 240.0/360.0, 7, inc);    // Blue, 7 fins
 
    //  Draw axes - no lighting from here on
    glDisable(GL_LIGHTING);

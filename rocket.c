@@ -26,39 +26,39 @@
 
 // The following shapes were manually traced and digitized on graph paper.
 static duopoint rocket_profile[] = {
-	{0,32},
-	{1,31.4},
-	{2,30.6},
-	{3,29.5},
-	{4,28.4},
-	{4.9,27.3},
-	{5.6,26.1},
-	{6.2,25},
-	{6.8,24},
-	{7.1,23},
-	{7.5,22},
-	{7.8,21},
-	{8.1,20},
-	{8.4,19},
-	{8.7,18},
-	{8.8,16.9},
-	{8.8,16},
-	{8.9,15},
-	{8.9,14},
-	{8.9,13},
-	{8.9,12},
-	{8.9,11},
-	{8.7,10},
-	{8.5,9},
-	{8.2,8},
-	{8,7},
-	{7.5,5.9},
-	{7,5},
-	{6.6,4},
-	{6,3},
-	{5.2,2},
-	{4.8,1},
-	{3.8,0}
+   {0   ,  32},
+   {1   ,  31.4},
+   {2   ,  30.6},
+   {3.1 ,  29.5},
+   {4   ,  28.4},
+   {4.9 ,  27.3},
+   {5.6 ,  26.1},
+   {6.2 ,  25},
+   {6.7 ,  24},
+   {7.1 ,  23},
+   {7.5 ,  22},
+   {7.9 ,  21},
+   {8.2 ,  20},
+   {8.5 ,  19},
+   {8.7 ,  18},
+   {8.85,  16.9},
+   {8.9 ,  16},
+   {8.9 ,  15},
+   {8.9 ,  14},
+   {8.9 ,  13},
+   {8.85,  12},
+   {8.8 ,  11},
+   {8.7 ,  10},
+   {8.5 ,  9},
+   {8.2 ,  8},
+   {7.9 ,  7},
+   {7.5 ,  5.9},
+   {7.1 ,  5},
+   {6.6 ,  4},
+   {6.1 ,  3},
+   {5.5 ,  2},
+   {4.8 ,  1},
+   {3.8 ,  0}
 };
 #define ROCKET_POINT_COUNT	(sizeof(rocket_profile) / sizeof(rocket_profile[0]))
 
@@ -121,7 +121,15 @@ void cylVertex(double r, double th, double z)
 }
 
 /*
- * Draw a radially symmetric solid
+ * Draw normal in cylindrical coordinates (r, theta, z)
+ */
+void cylNormal(double r, double th, double z)
+{
+   glNormal3d(r*Cos(th), r*Sin(th), z);
+}
+
+/*
+ * Draw a radially symmetric solid.  Automatically calculate and add surface normals for lighting
  *
  *    profile: pointer to an array of x,y coordinates representing the surface profile of the solid
  *    size: The number of points in the profile array
@@ -130,14 +138,14 @@ void cylVertex(double r, double th, double z)
  *    ph:  Angle to rotate the solid around (rx,ry,rz)
  *    s: the scale of the solid
  *    h: the base hue of the solid (value from 0 to 360) (ref: http://colorizer.org/ for a good interactive color chooser)
+ *    d: The angular increment for each slice of the radially symmetric solid
  */
-void lathe(dpp profile, int size, double bx, double by, double bz, double rx, double ry, double rz, double ph, double s, double h)
+void lathe(dpp profile, int size, double bx, double by, double bz, double rx, double ry, double rz, double ph, double s, double h, double d)
 {
-   const int d=15;
-   int th,i;
+   double th;
+   int i;
    double r, g, b;      // For receiving color values from color conversion
 
-   HSV2RGB(h,1,1, &r, &g, &b);
 
    // Save transformation
    glPushMatrix();
@@ -147,16 +155,22 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
    glRotated(ph, rx, ry, rz);
    glScaled(s,s,s);
 
+   // Set the color of the rocket
+   HSV2RGB(h,1,1, &r, &g, &b);
    glColor3f(r,g,b);
 
    // Latitude bands
    for (i=1; i<size; i++)
    {
-      glBegin(GL_QUAD_STRIP);
-      for (th=0; th<=360; th+=d)
+      glBegin(GL_QUADS);
+      for (th=0.0; th<=360.0; th+=d)
       {
+         // Draw a piece in counter-clockwise order
+         cylNormal(profile[i-1].y - profile[i].y, th+d/2.0, profile[i].x - profile[i-1].x);  // this is a flat quad, so all 4 vertices share same surface normal
          cylVertex(profile[i-1].x, th, profile[i-1].y);
          cylVertex(profile[i].x, th, profile[i].y);
+         cylVertex(profile[i].x, th+d, profile[i].y);
+         cylVertex(profile[i-1].x, th+d, profile[i-1].y);
       }
       glEnd();
    }
@@ -166,6 +180,7 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
    {
       glBegin(GL_TRIANGLE_FAN);
       glColor3f(0,0,1);    // Top cap is always blue
+      glNormal3d(0,0,1);   // Surface normal is straight up the z-axis
       glVertex3d(0, profile[0].y, 0);
       for (th = 0; th <= 360; th += d)
          cylVertex(profile[0].x, th, profile[0].y);
@@ -178,6 +193,7 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
       // Draw a triangle fan from the origin to the final circle.
       glBegin(GL_TRIANGLE_FAN);
       glColor3f(1, 1, 0);    // base cap is always orange
+      glNormal3d(0,0,-1);   // Surface normal is straight down the z-axis
       glVertex3d(0, profile[size-1].y, 0);
       for (th = 0; th <= 360; th += d)
          cylVertex(profile[size-1].x, th, profile[size-1].y);
@@ -241,11 +257,12 @@ void draw_fins(double bx, double by, double bz, double rx, double ry, double rz,
  *    s: the scale of the rocket
  *    h: the base hue of the rocket (value from 0 to 360) (ref: http://colorizer.org/ for a good interactive color chooser)
  *    fc: how many fins the rocket gets
+ *    d: The angular increment for each slice of the rocket
  */
-void rocket(double bx, double by, double bz, double rx, double ry, double rz, double ph, double s, double h, int fc)
+void rocket(double bx, double by, double bz, double rx, double ry, double rz, double ph, double s, double h, int fc, double d)
 {
    // Draw the main rocket cylinder
-   lathe(rocket_profile, ROCKET_POINT_COUNT, bx, by, bz, rx, ry, rz, ph, s, h);
+   lathe(rocket_profile, ROCKET_POINT_COUNT, bx, by, bz, rx, ry, rz, ph, s, h, d);
 
    // Now add some fins
    draw_fins(bx, by, bz, rx, ry, rz, ph, s, fc);
