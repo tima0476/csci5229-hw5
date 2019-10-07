@@ -197,7 +197,7 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
    {
       glBegin(GL_TRIANGLE_FAN);
       glColor3f(0,0,1);    // Top cap is always blue
-      glNormal3d(0,0,1);   // Surface normal is straight up the z-axis
+      glNormal3d(0,0,-1);   // Surface normal is straight up the z-axis
       glVertex3d(0, profile[0].z, 0);
       for (th = 0; th <= 360; th += d)
          cylVertex(profile[0].r, th, profile[0].z);
@@ -210,7 +210,7 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
       // Draw a triangle fan from the origin to the final circle.
       glBegin(GL_TRIANGLE_FAN);
       glColor3f(1, 1, 0);    // base cap is always orange
-      glNormal3d(0,0,-1);   // Surface normal is straight down the z-axis
+      glNormal3d(0,0,1);   // Surface normal is straight down the z-axis
       glVertex3d(0, profile[size-1].z, 0);
       for (th = 0; th <= 360; th += d)
          cylVertex(profile[size-1].r, th, profile[size-1].z);
@@ -246,15 +246,21 @@ void draw_fins(double bx, double by, double bz, double rx, double ry, double rz,
    // Draw rocket fins, spaced equally around the cylinder   
    for (th=0; th<=360; th += dth)
    {
-      glBegin(GL_QUAD_STRIP); // The fin shape is non-convex, so can't use a simple polygon
+      glBegin(GL_QUADS);      // The fin shape is non-convex, so can't use a simple polygon
       glColor3f(1,0,0);       // No choice; rocket fins are RED!
+
+      // The rocket fin is a flat plane, so all vertices have the same surface normal
+      cylNormal(1, th+90, 0);
 
       // The rocket fin is non-convex, so it cannot be drawn as a single polygon.  This loop will draw it
       // instead as a strip of quads, making the assumption that the first point in the array is adjacent to
       // the last point, the 2nd point is adjacent to the 2nd-to-last point, and so on.
-      for (i=0; i<(ROCKET_FIN_POINT_COUNT/2); i++)
+      for (i=0; i<(ROCKET_FIN_POINT_COUNT/2 - 2); i++)
       {
-         cylVertex(rocket_fin[i].r, th, rocket_fin[i].z);
+         // Draw each quad CCW so the double-sided lighting will work
+         cylVertex(rocket_fin[i  ].r, th, rocket_fin[i  ].z);
+         cylVertex(rocket_fin[i+1].r, th, rocket_fin[i+1].z);
+         cylVertex(rocket_fin[ROCKET_FIN_POINT_COUNT-i-2].r, th, rocket_fin[ROCKET_FIN_POINT_COUNT-i-2].z);
          cylVertex(rocket_fin[ROCKET_FIN_POINT_COUNT-i-1].r, th, rocket_fin[ROCKET_FIN_POINT_COUNT-i-1].z);
       }
 

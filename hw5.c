@@ -90,12 +90,6 @@ void display()
    //  Flat or smooth shading
    glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
 
-   // Enable face culling with CCW front faces.  This is necessary to avoid z-fighting on the double-sided
-   // rocket fins.
-   glEnable(GL_CULL_FACE);
-   glFrontFace(GL_CCW);
-   glCullFace(GL_BACK);
-
    //  Light switch
    if (light)
    {
@@ -117,9 +111,12 @@ void display()
       //  Enable lighting
       glEnable(GL_LIGHTING);
       
-      //  Location of viewer for specular calculations
+      //  Location of viewer for specular calculationsÏ
       glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
       
+      // Enable two sided mode (needed for the rocket fins)
+      glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
+
       //  glColor sets ambient and diffuse color materials
       glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
       glEnable(GL_COLOR_MATERIAL);
@@ -141,11 +138,11 @@ void display()
    ball(0,0,0, 0.3, emission, shininess, inc);
 
    // Draw some rockets.   (ref: http://colorizer.org/ for a good interactive color chooser)
-   rocket(   1,   1,   0,  1, 1, 0,  30,  1.0/70.0, 120.0/360.0, 3, inc);    // Green, 3 fins
-   rocket(  -1,   0,   0,  1, 0, 1,  85, -1.0/60.0, 180.0/360.0, 4, inc);    // Cyan, 4 fins
-   rocket(   0, 0.5, 1.5,  0, 1, 1, 161,  1.0/80.0, 300.0/360.0, 5, inc);    // Magenta, 5 fins
-   rocket(   0,-0.5,  -1,  0, 1, 0,  35, -1.0/90.0, 260.0/360.0, 6, inc);    // Purple, 6 fins
-   rocket( 1.1, 1.1, 1.1,  0, 0, 0,   0,  1.0/80.0, 240.0/360.0, 7, inc);    // Blue, 7 fins
+   rocket(   1,   1,   0,  1, 1, 0,  30, 1.0/70.0, 120.0/360.0, 3, inc);    // Green, 3 fins
+   rocket(  -1,   0,   0,  1, 0, 1,  85, 1.0/60.0,  90.0/360.0, 4, inc);    // Cyan, 4 fins
+   rocket(   0, 0.5, 1.5,  0, 1, 1, 161, 1.0/80.0, 300.0/360.0, 5, inc);    // Magenta, 5 fins
+   rocket(   0,-0.5,  -1,  0, 1, 0,  35, 1.0/90.0,  45.0/360.0, 6, inc);    // Purple, 6 fins
+   rocket( 1.1, 1.1, 1.1,  0, 0, 0,   0, 1.0/80.0, 240.0/360.0, 7, inc);    // Blue, 7 fins
 
    //  Draw axes - no lighting from here on
    glDisable(GL_LIGHTING);
@@ -362,12 +359,12 @@ void key(unsigned char ch,int x,int y)
          break;
 
       case 'n':      // Decrease shininess level, but not less than 0
-         shininess -= 5;
+         shininess -= 1;
          shininess = MAX(shininess,0);
          break;
 
       case 'N':      // Increase shininess level, but not more than 7
-         shininess += 5;
+         shininess += 1;
          shininess = MIN(shininess,7);
          break;
    }
