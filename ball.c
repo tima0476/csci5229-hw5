@@ -64,11 +64,13 @@ void ball(double x,double y,double z,double r, int e, int s, int inc)
    //  Bands of latitude
    for (ph=-90;ph<90;ph+=inc)
    {
-      glBegin(GL_QUAD_STRIP);
+      glBegin(GL_QUADS);  // Use quads instead of quadstrip so each quad can be drawn counterclockwise to allow use of face culling.
       for (th=0;th<=360;th+=2*inc)
       {
          Vertex(th,ph);
          Vertex(th,ph+inc);
+         Vertex(th+2*inc,ph+inc);
+         Vertex(th+2*inc,ph);
       }
       glEnd();
    }

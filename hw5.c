@@ -90,6 +90,12 @@ void display()
    //  Flat or smooth shading
    glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
 
+   // Enable face culling with CCW front faces.  This is necessary to avoid z-fighting on the double-sided
+   // rocket fins.
+   glEnable(GL_CULL_FACE);
+   glFrontFace(GL_CCW);
+   glCullFace(GL_BACK);
+
    //  Light switch
    if (light)
    {
