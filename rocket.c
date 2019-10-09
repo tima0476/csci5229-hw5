@@ -136,30 +136,42 @@ void cylNormal(double r, double th, double z)
  *    bz,by,bz: 3D coordinates of the base of the solid
  *    rx,ry,rz: 3D vector for rotation of the solid.
  *    ph:  Angle to rotate the solid around (rx,ry,rz)
- *    s: the scale of the solid
+ *    sc: the scale of the solid
  *    h: the base hue of the solid (value from 0 to 360) (ref: http://colorizer.org/ for a good interactive color chooser)
+ *    sh: the shininess of the rocket
+ *    e: Emissions intensity (0 to 100)
  *    d: The angular increment for each slice of the radially symmetric solid
  */
-void lathe(dpp profile, int size, double bx, double by, double bz, double rx, double ry, double rz, double ph, double s, double h, double d)
+void lathe(dpp profile, int size, double bx, double by, double bz, double rx, double ry, double rz, double ph, double sc, double h, int sh, int e, double d)
 {
    double th;
    int i;
    double r, g, b;      // For receiving color values from color conversion
    double nlr, nlz;     // Temporary storage for computing surface normals of the pair of vertices on the left (lower index)
    double nrr, nrz;     // Temporary storage for computing surface normals of the pair of vertices on the right (higher index)
+   float yellow[] = {1.0, 1.0, 0.0, 1.0};    // Specular light from our "sun" is always yellow
+   float Emission[] = {0.0, 0.0, 0.0, 1.0};  // emission color will be updated to match the hue of the rocket.
 
+   // Normalize Emission intensity
+   float en = e/100.0;
 
    // Save transformation
    glPushMatrix();
 
    // Offset and scale
-   glTranslated(bx,by,bz);
+   glTranslated(bx, by, bz);
    glRotated(ph, rx, ry, rz);
-   glScaled(s,s,s);
+   glScaled(sc, sc, sc);
 
-   // Set the color of the rocket
+   // Set colors
    HSV2RGB(h,1,1, &r, &g, &b);
+   Emission[0] = r * en;
+   Emission[1] = g * en;
+   Emission[2] = b * en;
    glColor3f(r,g,b);
+   glMaterialf(GL_FRONT,GL_SHININESS,sh);
+   glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
+   glMaterialfv(GL_FRONT,GL_EMISSION,Emission);
 
    // Latitude bands
    for (i=1; i<size; i++)
@@ -182,7 +194,7 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
 
          cylNormal(profile[i-1].z - profile[i].z, th+d/2.0, profile[i].r - profile[i-1].r);
          //
-         // Draw the quad in counter-clockwise order
+         // Draw each quad in counter-clockwise order
          //
          cylNormal(nlr, th, nlz);      cylVertex(profile[i-1].r, th,   profile[i-1].z);
          cylNormal(nrr, th, nrz);      cylVertex(profile[i  ].r, th,   profile[i  ].z);
@@ -197,6 +209,11 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
    {
       glBegin(GL_TRIANGLE_FAN);
       glColor3f(0,0,1);    // Top cap is always blue
+      Emission[0] = 0.0;
+      Emission[1] = 0.0;
+      Emission[2] = en;
+      glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
+
       glNormal3d(0,0,-1);   // Surface normal is straight up the z-axis
       glVertex3d(0, profile[0].z, 0);
       for (th = 0; th <= 360; th += d)
@@ -209,7 +226,11 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
    {
       // Draw a triangle fan from the origin to the final circle.
       glBegin(GL_TRIANGLE_FAN);
-      glColor3f(1, 1, 0);    // base cap is always orange
+      glColor3f(1, 1, 0);    // base cap is always yellow
+      Emission[0] = Emission[1] = (double)rand() / (double)RAND_MAX;
+      Emission[2] = 0.0;
+      glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
+
       glNormal3d(0,0,1);   // Surface normal is straight down the z-axis
       glVertex3d(0, profile[size-1].z, 0);
       for (th = 0; th <= 360; th += d)
@@ -227,27 +248,35 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
  *    bz,by,bz: 3D coordinates of the base of the rocket
  *    rx,ry,rz: 3D vector for rotation of the rocket.
  *    ph:  Angle to rotate the rocket
- *    s: the scale of the rocket
+ *    sc: the scale of the rocket
  *    fc: the number of fins on the rocket
+ *    sh: the shininess of the fins
+ *    e: The emissions intensity of the fins
  */
-void draw_fins(double bx, double by, double bz, double rx, double ry, double rz, double ph, double s, int fc)
+void draw_fins(double bx, double by, double bz, double rx, double ry, double rz, double ph, double sc, int fc, int sh, int e)
 {
    int dth = 360/fc;
    int th,i;
+   float yellow[] = {1.0, 1.0, 0.0, 1.0};    // Specular light from our "sun" is always yellow
+   float Emission[] = {0.01 * e, 0.0, 0.0, 1.0};  // emission color will be updated to match the hue of the rocket.
 
    // Save transformation
    glPushMatrix();
 
    // Offset and scale
-   glTranslated(bx,by,bz);
+   glTranslated(bx, by, bz);
    glRotated(ph, rx, ry, rz);
-   glScaled(s,s,s);
+   glScaled(sc, sc, sc);
+
+   glColor3f(1,0,0);       // No choice; rocket fins are RED!
+   glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, sh);        // Fins are double-sided so update both sides
+   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, yellow);
+   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, Emission);
 
    // Draw rocket fins, spaced equally around the cylinder   
    for (th=0; th<=360; th += dth)
    {
       glBegin(GL_QUADS);      // The fin shape is non-convex, so can't use a simple polygon
-      glColor3f(1,0,0);       // No choice; rocket fins are RED!
 
       // The rocket fin is a flat plane, so all vertices have the same surface normal
       cylNormal(1, th+90, 0);
@@ -277,16 +306,18 @@ void draw_fins(double bx, double by, double bz, double rx, double ry, double rz,
  *    bz,by,bz: 3D coordinates of the base of the rocket
  *    rx,ry,rz: 3D vector for rotation of the rocket.
  *    ph:  Angle to rotate the rocket
- *    s: the scale of the rocket
+ *    sc: the scale of the rocket
  *    h: the base hue of the rocket (value from 0 to 360) (ref: http://colorizer.org/ for a good interactive color chooser)
+ *    sh: the shininess of the rocket
+ *    e: The emission intensity of the rocket (0 to 100)
  *    fc: how many fins the rocket gets
  *    d: The angular increment for each slice of the rocket
  */
-void rocket(double bx, double by, double bz, double rx, double ry, double rz, double ph, double s, double h, int fc, double d)
+void rocket(double bx, double by, double bz, double rx, double ry, double rz, double ph, double sc, double h, int sh, int e, int fc, double d)
 {
    // Draw the main rocket cylinder
-   lathe(rocket_profile, ROCKET_POINT_COUNT, bx, by, bz, rx, ry, rz, ph, s, h, d);
+   lathe(rocket_profile, ROCKET_POINT_COUNT, bx, by, bz, rx, ry, rz, ph, sc, h, sh, e, d);
 
    // Now add some fins
-   draw_fins(bx, by, bz, rx, ry, rz, ph, s, fc);
+   draw_fins(bx, by, bz, rx, ry, rz, ph, sc, fc, sh, e);
 }

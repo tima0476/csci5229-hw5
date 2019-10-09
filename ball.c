@@ -39,7 +39,7 @@ static void Vertex(double th,double ph)
 }
 
 /*
- *  Draw a ball
+ *  Draw a ball in whatever color was last set (external to this function)
  *     at (x,y,z)
  *     radius (r)
  *     emission (e)
@@ -56,8 +56,7 @@ void ball(double x,double y,double z,double r, int e, int s, int inc)
    //  Offset, scale and rotate
    glTranslated(x,y,z);
    glScaled(r,r,r);
-   //  White ball
-   // glColor3f(1,1,1);
+
    glMaterialf(GL_FRONT,GL_SHININESS,s);
    glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
    glMaterialfv(GL_FRONT,GL_EMISSION,Emission);

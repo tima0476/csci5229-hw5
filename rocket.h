@@ -26,11 +26,13 @@ void cylNormal(double r, double th, double z);
  *    bz,by,bz: 3D coordinates of the base of the solid
  *    rx,ry,rz: 3D vector for rotation of the solid.
  *    ph:  Angle to rotate the solid around (rx,ry,rz)
- *    s: the scale of the solid
+ *    sc: the scale of the solid
  *    h: the base hue of the solid (value from 0 to 360) (ref: http://colorizer.org/ for a good interactive color chooser)
+ *    sh: The shininess of the rocket
+ *    e: Emissions intensity
  *    d: The angular increment for each slice of the radially symmetric solid
  */
-void lathe(dpp profile, int size, double bx, double by, double bz, double rx, double ry, double rz, double ph, double s, double h, double d);
+void lathe(dpp profile, int size, double bx, double by, double bz, double rx, double ry, double rz, double ph, double sc, double h, int sh, int e, double d);
 
 /*
  * Draw rocket fins equidistant around the rotation
@@ -38,10 +40,12 @@ void lathe(dpp profile, int size, double bx, double by, double bz, double rx, do
  *    bz,by,bz: 3D coordinates of the base of the rocket
  *    rx,ry,rz: 3D vector for rotation of the rocket.
  *    ph:  Angle to rotate the rocket
- *    s: the scale of the rocket
+ *    sc: the scale of the rocket
  *    fc: the number of fins on the rocket
+ *    sh: the shininess of the fins
+ *    e: The emissions intensity of the fins
  */
-void draw_fins(double bx, double by, double bz, double rx, double ry, double rz, double ph, double s, int fc);
+void draw_fins(double bx, double by, double bz, double rx, double ry, double rz, double ph, double sc, int fc, int sh, int e);
 
 /*
  * Draw a cartoon rocket ship
@@ -49,11 +53,13 @@ void draw_fins(double bx, double by, double bz, double rx, double ry, double rz,
  *    bz,by,bz: 3D coordinates of the base of the rocket
  *    rx,ry,rz: 3D vector for rotation of the rocket.
  *    ph:  Angle to rotate the rocket
- *    s: the scale of the rocket
+ *    sc: the scale of the rocket
  *    h: the base hue of the rocket (value from 0 to 360) (ref: http://colorizer.org/ for a good interactive color chooser)
+ *	  sh: the shininess of the rocket
+ *    e: Emissions intensity
  *    fc: how many fins the rocket gets
  *	  d: The angular increment for each slice of the rocket
  */
-void rocket(double bx, double by, double bz, double rx, double ry, double rz, double ph, double s, double h, int fc, double d);
+void rocket(double bx, double by, double bz, double rx, double ry, double rz, double ph, double sc, double h, int sh, int e, int fc, double d);
 
 #endif // __rocket_h__

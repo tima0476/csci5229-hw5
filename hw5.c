@@ -125,10 +125,10 @@ void display()
       glEnable(GL_LIGHT0);
       
       //  Set ambient, diffuse, specular components and position of light 0
-      glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
-      glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-      glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
-      glLightfv(GL_LIGHT0,GL_POSITION,Position);
+      glLightfv(GL_LIGHT0, GL_AMBIENT,  Ambient);
+      glLightfv(GL_LIGHT0, GL_DIFFUSE,  Diffuse);
+      glLightfv(GL_LIGHT0, GL_SPECULAR, Specular);
+      glLightfv(GL_LIGHT0, GL_POSITION, Position);
    }
    else
       glDisable(GL_LIGHTING);
@@ -138,11 +138,11 @@ void display()
    ball(0,0,0, 0.3, emission, shininess, inc);
 
    // Draw some rockets.   (ref: http://colorizer.org/ for a good interactive color chooser)
-   rocket(   1,   1,   0,  1, 1, 0,  30, 1.0/70.0, 120.0/360.0, 3, inc);    // Green, 3 fins
-   rocket(  -1,   0,   0,  1, 0, 1,  85, 1.0/60.0,  90.0/360.0, 4, inc);    // Cyan, 4 fins
-   rocket(   0, 0.5, 1.5,  0, 1, 1, 161, 1.0/80.0, 300.0/360.0, 5, inc);    // Magenta, 5 fins
-   rocket(   0,-0.5,  -1,  0, 1, 0,  35, 1.0/90.0,  45.0/360.0, 6, inc);    // Purple, 6 fins
-   rocket( 1.1, 1.1, 1.1,  0, 0, 0,   0, 1.0/80.0, 240.0/360.0, 7, inc);    // Blue, 7 fins
+   rocket(   1,   1,   0,  1, 1, 0,  30, 1.0/70.0, 120.0/360.0, shininess, emission, 3, inc);    // Green, 3 fins
+   rocket(  -1,   0,   0,  1, 0, 1,  85, 1.0/60.0,  90.0/360.0, shininess, emission, 4, inc);    // Cyan, 4 fins
+   rocket(   0, 0.5, 1.5,  0, 1, 1, 161, 1.0/80.0, 300.0/360.0, shininess, emission, 5, inc);    // Magenta, 5 fins
+   rocket(   0,-0.5,  -1,  0, 1, 0,  35, 1.0/90.0,  45.0/360.0, shininess, emission, 6, inc);    // Purple, 6 fins
+   rocket( 1.1, 1.1, 1.1,  0, 0, 0,   0, 1.0/80.0, 240.0/360.0, shininess, emission, 7, inc);    // Blue, 7 fins
 
    //  Draw axes - no lighting from here on
    glDisable(GL_LIGHTING);
@@ -150,18 +150,23 @@ void display()
    if (axes)
    {
       glBegin(GL_LINES);
-      glVertex3d(0.0,0.0,0.0);
-      glVertex3d(len,0.0,0.0);
-      glVertex3d(0.0,0.0,0.0);
-      glVertex3d(0.0,len,0.0);
-      glVertex3d(0.0,0.0,0.0);
-      glVertex3d(0.0,0.0,len);
+      glVertex3d(0.0, 0.0, 0.0);
+      glVertex3d(len, 0.0, 0.0);
+
+      glVertex3d(0.0, 0.0, 0.0);
+      glVertex3d(0.0, len, 0.0);
+      
+      glVertex3d(0.0, 0.0, 0.0);
+      glVertex3d(0.0, 0.0, len);
       glEnd();
+      
       //  Label axes
       glRasterPos3d(len,0.0,0.0);
       Print("X");
+      
       glRasterPos3d(0.0,len,0.0);
       Print("Y");
+      
       glRasterPos3d(0.0,0.0,len);
       Print("Z");
    }
