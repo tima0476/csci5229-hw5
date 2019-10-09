@@ -3,7 +3,13 @@ HW5: Lighting
 Timothy Mason
 CSCI 5229-001B Computer Graphics - University of Colorado Boulder
 
+Time Taken: 14 hours
+
 Expands on the Rockets + Planet scene of HW3 by adding basic lighting
+
+Note that the flickering of the yellow disks at the bottom of each rocket is not a bug.  That
+was done intentionally to represent a flickering propulsion flame.  (it is setting the emissions
+of the bottom disk material to yellow with a random intensity).
 
 Key bindings
   l          Toggles lighting
@@ -15,14 +21,15 @@ Key bindings
   F1         Toggle smooth/flat shading
   F2         Toggle local viewer mode
   F3         Toggle light distance (1/5)
-  F8         Change ball increment
+  F8         Change ball and rocket body increment
   F9         Invert bottom normal
-  m          Toggles light movement
-  []         Lower/rise light
-  p          Toggles ortogonal/perspective projection
+  m/M        Toggles light movement
+  [/]        Lower/rise light
+  </>        Move light CW/CCW about y axis
+  p/P        Toggles ortogonal/perspective projection
   +/-        Change field of view of perspective
-  x          Toggle axes
+  x/X        Toggle axes
   arrows     Change view angle
   PgDn/PgUp  Zoom in and out
   0          Reset view angle
-  ESC        Exit
+  ESC/q/Q    Exit
